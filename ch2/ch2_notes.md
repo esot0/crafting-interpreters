@@ -54,13 +54,88 @@ An example is constant folding: imagine we have an expression
 And we know that a never changes throughout the program. Since the expression only has to be evaluated once, we can do arithmetic in the compiler and set a to its numerical value.
 
 However, many successful langs produce relatvely unoptimized code during compilation, and focus their optimization efforts on runtime.
+
+<br>
+###Code Generation
+After applying optimization, we have to convert the code into a form that the machine can work with. This is dubbed "code gen," although this code doesn't generally resemble the high level languages we know and love. Instead, this "code" is primitive and assembly-like, better suited for a CPU.
+
+At this point we have reached the back end. Earlier, we were figuring out the semantics of our code. Now, we're trying to get it more and more basic, until it's in a form that the machine can read. 
+
+Languages make a choice at this point--do they generate code for a physical, real CPU? Or do they generate code for a virtual one? 
+
+**Generating for a Real CPU: **
+* Get an executable that the OS can load directly on the chip
+* Generally faster than generating code for a virtual CPU 
+* Code generation is very difficult and time consuming
+* Compiler is tied to a specific architecture--a compiler that targets x86 machine code will not run on ARM devices.
+
+**Generating for a Virtual CPU:**
+* Virtual machine code formed in response to the aforementioned difficulties in generating machine code for a real CPU
+* Produce code for a hypothetical, idealized machine. This code is generally called **bytecode** today because each instruction tends to be a single byte long.
+* These instructions map a little closer to the language's semantics and are not as tied to the architecture of any specific computer
+* Dense, binary encoding of language's low-level operations
+
+
 <br>
 ### Virtual Machines
-<br>
-<br>
-### JIT (Just in Time) Compiling
 
-Some languages opt to compile programs
+Assuming that your compiler produces bytecode (you're going the virtual CPU route) you still have some work to do. 
+
+There is no chip that understands bytecode--it's an intermediate abstraction between the CPU and your source code. Therefore, you have to translate the bytecode into something the computer can read.
+
+**The farther down the pipeline you push architecture-specific work, the more earlier phases you can share between architectures**
+
+However, there is a tradeoff- a lot of optimizations are at their most efficient when you're using the features of a specific chip to the fullest. 
+
+One should seek a fine balance between facets of a compiler that target specific architectures, and facets that are shared between architectures.
+
+You can write a **virtual machine**, a program which emulates a hypothetical chip that supports your virtual architecture at runtime. However, it's slower than translating it to native code, [since every instruction must be simulated at runtime every time it exectures] (what exactly does this mean--note, do more research on virtual machines and how they function)
+
+However, you get a tradeoff of portability; implement your VM in C and run your language on any platform with a C compiler. 
+
+This is not to be confused with a system virtual machine, which may let you run windows on your Linux laptop. We discuss a language virtual machine/process virtual machine. 
+
+<br>
+<br>
+
+
+### Runtime
+After compilation is over, we have the program in a form that we can execute. 
+
+* If compiled to machine code, the OS can simply load the executabl
+* If we took the bytecode approach, we need to start up the language's VM and load the program into that
+
+In the vast majority of languages, our language still needs to provide some services while a program runs--for example, if it's a language like Java, it needs to run its garbage collector so as to reclaim unused memory. Or, if our language has "instance of" test, the language should keep track of each object's type during execution.
+
+Since this all goes on at runtime, all the processes are aptly called the "runtime." In a fully compiled language, the code that implements the runtime gets injected directly in the executable. 
+
+If the language runs inside an interpreter or VM, then the runtime lives there (Java, Python, JS). 
+
+
+### Single Pass Compiler
+
+Some compilers interleave parsing, analysis, and code gen without ever touching intermediate representations. Since you have no intermediate data structures to store the program's global info, you never revisit any previously parsed part of code; your code is sequential in the truest, strictest sense. 
+
+This means that as soon as you see an expression, you must have all the information necessary to parse it.
+
+Both Pascal and C are built on this because of intensive memory constraints at the time of their release. 
+
+**syntax-directed translation** - A technique for building single pass compilers. (tbc)
+
+### Tree-walk Interpreters
+
+Some programming languages begin executing code right after parsing it to an AST. 
+
+To run the program, the interpreter traverses the syntax tree one branch and lead at a time, progressively evaluating each node as it goes.
+
+This style is most common for student projects and little languages, but it's very slow so it's not really used in general-purpose languages. Some use "interpreter" only to refer to this implementation. 
+
+### Transpilers
+
+
+### JIT (Just in Time) Compiling
+Some languages opt to compile programs 
+
 <br>
 ### Compilers vs Interpreters
 <br>
