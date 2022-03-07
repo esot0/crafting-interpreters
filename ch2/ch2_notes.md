@@ -128,18 +128,57 @@ Some programming languages begin executing code right after parsing it to an AST
 
 To run the program, the interpreter traverses the syntax tree one branch and lead at a time, progressively evaluating each node as it goes.
 
-This style is most common for student projects and little languages, but it's very slow so it's not really used in general-purpose languages. Some use "interpreter" only to refer to this implementation. 
+This style is most common for student projects and little languages, but it's very slow so it's not really used in general-purpose languages. Some use "interpreter" only to refer to this implementation. ![8273B839-34D5-4A5B-9F8F-CC85B041548C](https://user-images.githubusercontent.com/52178869/157052490-445e20ed-053d-44eb-8ff6-d30fa4a93db9.jpeg)
+
 
 ### Transpilers
 
+Writing a complete backend for a language can be very time consuming. However, if you have an existing intermediate representation to target, you can connect your frontend to that instead. Otherwise, you're a bit stuck.
+
+However, there's the approach of treating some other source language as if it were an intermediate representation
+
+Write a frontend for your language. Then, in the backend, you're not "going down the mountain" and lowering your code to machine code, you produce a string of valid source code for another language that's about as high level as yours. Then, use existing compilation tools for _that_ language to reach the machine code level.
+
+* Many languages target Javascript instead of machine code to get your code to run in the browser in this way. 
+
+The first transcompiler translated one assembly language to another. Today, most transpiler work on higher level language.
+
+After the viral spread of UNIX, there began a long tradition of compilers that produced C as their output language. C compielrs were everywhere Unix was, and produced efficient code, so targetting C was a great way of getting your language running on a vast range of architectures.
+
+
+This may be known as a source-to-source compiler or transcompiler. Today, the more common term is transpiler. 
+
+The front end of a transpiler looks like traditional compilers. THen, if the source language is just a syntactically different than the target language, one might skip analysis and go directly to outputting analogous syntax in a destination language.
+
+If two languages are more semantically different, you may see more typical compiler features, like analysis and optimization.
+
+Instead of outputting machine code, you produce grammatically correct code in the target language. Just run that resulting code through the output language's existing compilation pipeline, and you're set. 
+
 
 ### JIT (Just in Time) Compiling
-Some languages opt to compile programs 
 
-<br>
+The fastest way to execute code is compiling it to machine code. However, you might not know the architecture your end user machine supports. 
+
+The JVM opts for the approach of compiling bytecode to native code _when the program is loaded on the user machine_ , for the user's given architecture. Naturally, this is called JIT (Just in Time) Compiling, pronounced like fit.
+
 ### Compilers vs Interpreters
-<br>
-**Compilers -** Usually parse a source language into a lower level language that's easier for computers to understand. The user then runs the program themselves.
 
+What's the difference between compilers and interpreters? 
+
+This question is analagous to asking if something is a fruit or a vegetable--while it seems like an "either or" choice, "fruit" is a botanical term and "vegetable" is culinary. Something can be both a fruit or a vegetable, and something can be both a compiler and interpreter. 
+
+
+**Compilers** -An implementation technique. Usually parse a source language into a lower level language that's easier for computers to understand, such as machine code or bytecode (transpilers also fall under the compiler umbrella). A compiler just translates source code into some other form, but doesn't execute. A user has to execute the output themselves
+
+Example: 
+* GCC + clang -- take C code and compile it to machine code. An end user runs that executable directly and never has to worry about what tool was used for compilation. 
+*
 <br>
-**Interpreters -** Usual
+**Interpreters** - takes in source code and executes it immediately--runs a program "from source." 
+
+Example:
+* In older versions of Ruby, the implementation parsed the source code and executed it directly by traversing the syntax tree
+
+
+Addendum: What about CPython?
+* When you run your Python program w CPython, the code is parsed + converted to an internal bytecode format. Then, this is executed inside the VM. While the user never sees anything and it _seems_ python is running from source, there is a bit of both going on. 
